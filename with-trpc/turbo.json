@@ -1,0 +1,54 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "test": {
+      "outputs": ["coverage/**"]
+    },
+    "lint": {},
+    "format": {
+      "dependsOn": ["lint"]
+    },
+    "typecheck": {},
+    "app-backend#prisma:generate": {
+      "cache": false
+    },
+    "app-backend#prisma:migrate": {
+      "cache": false
+    },
+    "app-backend#dev": {
+      "dependsOn": ["app-client#build", "prisma:migrate", "prisma:generate"],
+      "cache": false,
+      "persistent": true
+    },
+    "app-backend#prisma:migrate:deploy": {
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["node_modules/.prisma/client"]
+    },
+    "app-client#msw:init": {
+      "inputs": ["package.json"],
+      "outputs": ["public/mockServiceWorker.js"]
+    },
+    "app-client#dev": {
+      "dependsOn": ["msw:init"],
+      "cache": false,
+      "persistent": true
+    },
+    "app-client#build": {
+      "dependsOn": ["app-backend#prisma:migrate:deploy"],
+      "inputs": [
+        "vite.config.ts",
+        "public/**",
+        "index.html",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "!src/**/*.test.ts",
+        "!src/**/*.test.tsx",
+        "!src/_mocks_",
+        "!.eslint*",
+        "!.prettier*",
+        "!README.md"
+      ],
+      "outputs": ["dist/**"]
+    }
+  }
+}
