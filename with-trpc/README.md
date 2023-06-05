@@ -1,4 +1,4 @@
-# Fullstack App Without tRPC
+# Fullstack App With tRPC
 
 ## Quickstart
 
